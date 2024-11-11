@@ -9,6 +9,7 @@ Consider the following questions:
 3. Is this tweet likely to be shared on social media or in a tech community so that they learn something instead of wasting time?
 4. Tweet should not me spammy or just for the sake of engagement and getting likes and followers.
 5. Like the tweet if I am engaging with the tweet like retweeting/commenting/bookmarking/liking
+6. Make sure the tweet contain only english language else don't engage
 
 Based on this analysis, return a JSON response with the following structure:
 
@@ -38,6 +39,7 @@ Consider the following questions to filter out unrelated tweets:
 6. Verify that the job mentioned in the tweet required less than 2 years of experience if experience is mentioned or is for SDE 1 or SDE - I
 7. The job should be for India only or remote job
 8. Like the tweet if I am engaging with the tweet like retweeting/commenting/bookmarking/liking
+9. Make sure the tweet contain only english language else don't engage
 
 Confirm at least twice that the tweet is indeed related to a genuine tech job to ensure accuracy.
 
