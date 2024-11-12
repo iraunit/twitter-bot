@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from time import sleep
 
@@ -6,6 +7,9 @@ from flask import Flask, request, jsonify
 from twikit import Client
 
 from llm import is_tweet_beneficial, is_tech_job_tweet_beneficial, generate_job_tweet
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 interacted_tweets = set()
 app = Flask(__name__)
@@ -19,7 +23,7 @@ if cookies_json:
     cookies = json.loads(cookies_json)
     client.set_cookies(cookies)
 else:
-    print("Cookies not found in the environment variable!")
+    logger.info("Cookies not found in the environment variable!")
 
 
 def get_tweet_data(tweet):
@@ -42,7 +46,7 @@ async def hello_world():
 async def schedule_job_tweet():
     data = request.json
     scheduled_job_tweets.append(data)
-    print(scheduled_job_tweets)
+    logger.info(scheduled_job_tweets)
     return jsonify({"message": "Job scheduled successfully!"}), 200
 
 
@@ -52,7 +56,7 @@ async def tweet_scheduled_job_tweet():
         return jsonify({"message": "No scheduled tweets found!"}), 404
 
     job_data = scheduled_job_tweets.pop(0)
-    print("Tweeting job:", job_data)
+    logger.info(f"Tweeting job: {job_data}")
     generated_tweet = generate_job_tweet(job_data)
     generated_tweet[
         "tweet_text"] += f"\n\nGet More Jobs/Internships: https://www.codingkaro.in/jobs-internships\n\nApply Now At: {job_data['_id']}\n\n#codingkaro"
@@ -73,7 +77,7 @@ async def post_tweet():
         return jsonify({"message": "Tweet posted successfully!"}), 200
 
     except Exception as e:
-        print(e)
+        logger.info(e)
         return jsonify({"error": str(e)}), 500
 
 
@@ -123,26 +127,26 @@ async def interact_with_tweet(keyword):
                     await tweet.reply(tweet_information["comment_text"])
                     tweet_data["comment"] = tweet_information["comment_text"]
                     commented_tweets.append(tweet_data)
-                    print(f"Replied to tweet: {tweet.text}\n\n")
+                    logger.info(f"Replied to tweet: {tweet.text}\n\n")
 
                 if tweet_information["retweet_tweet"]:
                     sleep(10)
                     await tweet.retweet()
                     retweeted_tweets.append(tweet_data)
-                    print(f"Retweeted tweet: {tweet.text}\n\n")
+                    logger.info(f"Retweeted tweet: {tweet.text}\n\n")
 
                 if tweet_information["bookmark_tweet"]:
                     await tweet.bookmark()
                     bookmarked_tweets.append(tweet_data)
-                    print(f"Bookmarked tweet: {tweet.text}\n\n")
+                    logger.info(f"Bookmarked tweet: {tweet.text}\n\n")
 
                 sleep(60)
 
             if tweet_information["emails"]:
-                print(f"\n\n**Emails: {tweet_information['emails']}**\n\n")
+                logger.info(f"\n\n**Emails: {tweet_information['emails']}**\n\n")
 
         except Exception as e:
-            print(e)
+            logger.info(e)
 
     return jsonify(
         {"tweets": tweets_data, "liked": liked_tweets, "commented": commented_tweets, "retweeted": retweeted_tweets,
