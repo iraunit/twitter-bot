@@ -57,3 +57,26 @@ Tweet Data is below:
 
 {text}
 """
+
+def generate_job_tweet_prompt(job_data):
+    return f"""
+    Based on the following job data, generate a tweet of fewer than 100 characters that includes relevant information: company name, job title, required experience level (if specified), and location (if relevant). The tweet should be concise, clear, and suitable for Twitter.
+
+    Instructions:
+    - Exclude any information that is irrelevant or has null values (e.g., experience or salary marked as negative).
+    - Use the structure: "Exciting role! Company hiring Title | Experience YOE | CTC | Location | Apply now!" You can change the structure if needed.
+    - Exclude abbreviations and avoid including contact emails or hashtags.
+    - Make the tweet suitable for followers interested in tech roles (like software engineering or internships) at reputable companies.
+    - Use Catchy phrases and catchy titles.
+    - Use only English language.
+
+    Job data:
+    {job_data}
+
+    Example output:
+    return me the following JSON
+    {{"tweet_text": "Exciting role! Company_NAME is hiring for Job_Title | Experience YOE | CTC | Location | Apply now!"}}
+
+    Generate the tweet here:
+    """
+

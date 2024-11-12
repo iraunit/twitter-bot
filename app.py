@@ -1,18 +1,19 @@
 import json
 import os
+from crypt import methods
 from time import sleep
 
 from flask import Flask, request, jsonify
 from twikit import Client
 
-from llm import is_tweet_beneficial, is_tech_job_tweet_beneficial
+from llm import is_tweet_beneficial, is_tech_job_tweet_beneficial, generate_job_tweet
 
 interacted_tweets = set()
 app = Flask(__name__)
 
 client = Client('en-US')
 
-
+scheduled_job_tweets = []
 
 cookies_json = os.getenv('COOKIES_JSON')
 if cookies_json:
@@ -36,6 +37,23 @@ def get_tweet_data(tweet):
 @app.route('/')
 async def hello_world():
     return 'Hello World!'
+
+@app.route('/schedule_job_tweet',methods=['POST'])
+async def schedule_job_tweet():
+    data = request.json
+    scheduled_job_tweets.append(data)
+    return jsonify({"message": "Job scheduled successfully!"}), 200
+
+@app.route('/tweet_scheduled_job_tweet')
+async def tweet_scheduled_job_tweet():
+    if len(scheduled_job_tweets) == 0:
+        return jsonify({"message": "No scheduled tweets found!"}), 404
+
+    job_data = scheduled_job_tweets.pop(0)
+    generated_tweet = generate_job_tweet(job_data)
+    generated_tweet["tweet_text"] += f"\n\nGet More Jobs/Internships: https://www.codingkaro.in/jobs-internships\n\nApply Now At: {job_data['_id']}\n\n#codingkaro"
+    await client.create_tweet(text=generated_tweet["tweet_text"])
+    return jsonify({"message": "Job tweeted successfully!"}), 200
 
 
 @app.route('/post_tweet', methods=['POST'])
