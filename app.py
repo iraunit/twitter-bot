@@ -1,6 +1,5 @@
 import json
 import os
-from crypt import methods
 from time import sleep
 
 from flask import Flask, request, jsonify
@@ -38,11 +37,14 @@ def get_tweet_data(tweet):
 async def hello_world():
     return 'Hello World!'
 
-@app.route('/schedule_job_tweet',methods=['POST'])
+
+@app.route('/schedule_job_tweet', methods=['POST'])
 async def schedule_job_tweet():
     data = request.json
     scheduled_job_tweets.append(data)
+    print(scheduled_job_tweets)
     return jsonify({"message": "Job scheduled successfully!"}), 200
+
 
 @app.route('/tweet_scheduled_job_tweet')
 async def tweet_scheduled_job_tweet():
@@ -50,8 +52,10 @@ async def tweet_scheduled_job_tweet():
         return jsonify({"message": "No scheduled tweets found!"}), 404
 
     job_data = scheduled_job_tweets.pop(0)
+    print("Tweeting job:", job_data)
     generated_tweet = generate_job_tweet(job_data)
-    generated_tweet["tweet_text"] += f"\n\nGet More Jobs/Internships: https://www.codingkaro.in/jobs-internships\n\nApply Now At: {job_data['_id']}\n\n#codingkaro"
+    generated_tweet[
+        "tweet_text"] += f"\n\nGet More Jobs/Internships: https://www.codingkaro.in/jobs-internships\n\nApply Now At: {job_data['_id']}\n\n#codingkaro"
     await client.create_tweet(text=generated_tweet["tweet_text"])
     return jsonify({"message": "Job tweeted successfully!"}), 200
 
@@ -146,4 +150,4 @@ async def interact_with_tweet(keyword):
 
 
 if __name__ == '__main__':
-    app.run(debug=True,host="0.0.0.0",port=5000)
+    app.run(debug=True, host="0.0.0.0", port=5000)
