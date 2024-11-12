@@ -12,6 +12,8 @@ app = Flask(__name__)
 
 client = Client('en-US')
 
+
+
 cookies_json = os.getenv('COOKIES_JSON')
 if cookies_json:
     cookies = json.loads(cookies_json)
@@ -87,7 +89,7 @@ async def interact_with_tweet(keyword):
             if not tweet_information:
                 continue
 
-            if not tweet_information["beneficial_for_engagement"]:
+            if not tweet_information["beneficial_for_engagement"] or not tweet.lang == "en":
                 continue
 
             if tweet_information["like_tweet"] and not tweet.favorited:
