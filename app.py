@@ -56,12 +56,17 @@ async def tweet_scheduled_job_tweet():
         return jsonify({"message": "No scheduled tweets found!"}), 404
 
     job_data = scheduled_job_tweets.pop(0)
-    logger.info(f"Tweeting job: {job_data['_id']}")
-    generated_tweet = generate_job_tweet(job_data)
-    generated_tweet["tweet_text"] += f"\n\nGet More Jobs/Internships: https://www.codingkaro.in/jobs-internships\n\nApply Now At: {job_data['_id']}\n\n#codingkaro"
-    await client.create_tweet(text=generated_tweet["tweet_text"])
-    logger.info(f"Tweeted: \n\n{generated_tweet['tweet_text']}\n\n")
-    return jsonify({"message": "Job tweeted successfully!", "tweet": generated_tweet["tweet_text"]}), 200
+    try:
+        logger.info(f"Tweeting job: {job_data['_id']}")
+        generated_tweet = generate_job_tweet(job_data)
+        generated_tweet["tweet_text"] += f"\n\nGet More Jobs/Internships: https://www.codingkaro.in/jobs-internships\n\nApply Now At: {job_data['_id']}\n\n#codingkaro"
+        await client.create_tweet(text=generated_tweet["tweet_text"])
+        logger.info(f"Tweeted: \n\n{generated_tweet['tweet_text']}\n\n")
+        return jsonify({"message": "Job tweeted successfully!", "tweet": generated_tweet["tweet_text"]}), 200
+    except Exception as e:
+        logger.info(e)
+        scheduled_job_tweets.append(job_data)
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route('/post_tweet', methods=['POST'])
